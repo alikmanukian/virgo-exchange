@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property numeric-string $amount
  * @property OrderSide $side
  * @property OrderStatus $status
+ * @property AssetSymbol $symbol
  */
 final class Order extends Model
 {
@@ -79,7 +80,7 @@ final class Order extends Model
      * @return Builder<Order>
      */
     #[Scope]
-    protected function forSymbol(Builder $query, string $symbol): Builder
+    protected function forSymbol(Builder $query, AssetSymbol|string $symbol): Builder
     {
         return $query->where('symbol', $symbol);
     }

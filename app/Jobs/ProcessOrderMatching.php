@@ -19,7 +19,7 @@ final class ProcessOrderMatching implements ShouldQueue
 
     public function handle(MatchOrder $matchOrder): void
     {
-        $order = Order::find($this->orderId);
+        $order = Order::query()->find($this->orderId);
 
         if ($order instanceof Order) {
             $matchOrder->handle($order);

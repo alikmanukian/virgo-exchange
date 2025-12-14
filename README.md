@@ -93,21 +93,18 @@ php artisan queue:work
 ## Testing
 
 ```bash
-# Run all tests
-php artisan test
-
-# Run with coverage
-php artisan test --coverage
+# Run all tests, static analysis, formatting test
+composer test
 ```
 
 ## Code Quality
 
 ```bash
 # Format PHP code
-vendor/bin/pint
+composer lint
 
 # Run static analysis
-./vendor/bin/phpstan analyse
+composer test:types
 
 # Format frontend code
 npm run format

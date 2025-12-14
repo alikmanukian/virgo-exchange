@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property numeric-string $amount
  * @property numeric-string $locked_amount
+ * @property AssetSymbol $symbol
  */
 final class Asset extends Model
 {

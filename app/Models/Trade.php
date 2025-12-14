@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AssetSymbol;
 use Database\Factories\TradeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property numeric-string $amount
  * @property numeric-string $total
  * @property numeric-string $commission
+ * @property AssetSymbol $symbol
  */
 final class Trade extends Model
 {
@@ -74,6 +76,7 @@ final class Trade extends Model
             'amount' => 'decimal:8',
             'total' => 'decimal:8',
             'commission' => 'decimal:8',
+            'symbol' => AssetSymbol::class,
         ];
     }
 }
