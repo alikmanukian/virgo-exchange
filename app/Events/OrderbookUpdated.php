@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use App\Enums\AssetSymbol;
 use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -19,7 +20,7 @@ final class OrderbookUpdated implements ShouldBroadcastNow
     use SerializesModels;
 
     public function __construct(
-        public string $symbol,
+        public AssetSymbol $symbol,
     ) {}
 
     /**
@@ -28,7 +29,7 @@ final class OrderbookUpdated implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel('orderbook.'.$this->symbol),
+            new Channel('orderbook.'.$this->symbol->value),
         ];
     }
 
@@ -42,7 +43,7 @@ final class OrderbookUpdated implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        $symbol = mb_strtoupper($this->symbol);
+        $symbol = mb_strtoupper($this->symbol->value);
 
         $bids = Order::query()
             ->open()

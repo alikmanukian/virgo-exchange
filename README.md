@@ -4,7 +4,7 @@ A cryptocurrency trading exchange test application built with Laravel 12, Inerti
 
 <img src="public/images/screenshot.png" alt="Mini Wallet Screenshot" width="100%" />
 
-**Demo URL**: https://virgo-exchange-main-ehuoor.laravel.cloud/
+**Demo URL**: <a href="https://virgo-exchange-main-ehuoor.laravel.cloud/" target="_blank">https://virgo-exchange-main-ehuoor.laravel.cloud</a>
 
 ## Requirements
 
@@ -128,7 +128,3 @@ PUSHER_APP_CLUSTER=eu
 VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
 VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 ```
-
-## License
-
-MIT

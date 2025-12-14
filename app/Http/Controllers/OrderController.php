@@ -14,37 +14,12 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class OrderController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
-    {
-        /** @var User $user */
-        $user = $request->user();
-
-        /** @var string|null $symbol */
-        $symbol = $request->query('symbol');
-        /** @var string|null $side */
-        $side = $request->query('side');
-        /** @var string|null $status */
-        $status = $request->query('status');
-
-        $orders = $user
-            ->orders()
-            ->when($symbol, fn (Builder $query, string $symbol): Builder => $query->forSymbol($symbol))
-            ->when($side, fn (Builder $query, string $side): Builder => $query->where('side', $side))
-            ->when($status, fn (Builder $query, string $status): Builder => $query->where('status', $status))
-            ->latest()
-            ->paginate(20);
-
-        return OrderResource::collection($orders);
-    }
-
     public function store(
         StoreOrderRequest $request,
         PlaceBuyOrder $placeBuyOrder,
@@ -60,8 +35,8 @@ final class OrderController extends Controller
 
         try {
             $order = $side === OrderSide::Buy
-                ? $placeBuyOrder->handle($user, $validated['symbol'], $price, $amount)
-                : $placeSellOrder->handle($user, $validated['symbol'], $price, $amount);
+                ? $placeBuyOrder->handle($user, $validated['symbol'], (string) $price, (string) $amount)
+                : $placeSellOrder->handle($user, $validated['symbol'], (string) $price, (string) $amount);
 
             if ($request->expectsJson()) {
                 return response()->json([

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\AssetSymbol;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\OrderResource;
 use App\Models\User;
@@ -18,7 +19,7 @@ final class TradingController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        $symbol = mb_strtoupper((string) $request->query('symbol', 'BTC'));
+        $symbol = mb_strtoupper((string) $request->query('symbol', AssetSymbol::BTC->value));
 
         return Inertia::render('Trading', [
             'balance' => fn () => $user->balance,

@@ -114,11 +114,8 @@ final readonly class MatchOrder
         $buyerOwes = bcadd($totalValue, $commission, 8);
         $refund = bcsub($buyerPaid, $buyerOwes, 8);
 
-        if (bccomp($refund, '0', 8) > 0) {
-            $buyer->increment('balance', (float) $refund);
-        } elseif (bccomp($refund, '0', 8) < 0) {
-            $buyer->decrement('balance', (float) mb_ltrim($refund, '-'));
-        }
+        $buyer->balance = bcadd($buyer->balance, $refund, 8);
+        $buyer->save();
 
         /** @var Trade */
         return Trade::query()->create([

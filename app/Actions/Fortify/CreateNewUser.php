@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Fortify;
 
+use App\Enums\AssetSymbol;
 use App\Models\Asset;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -45,14 +46,14 @@ final class CreateNewUser implements CreatesNewUsers
 
             Asset::query()->create([
                 'user_id' => $user->id,
-                'symbol' => 'BTC',
+                'symbol' => AssetSymbol::BTC,
                 'amount' => '1.00000000',
                 'locked_amount' => '0.00000000',
             ]);
 
             Asset::query()->create([
                 'user_id' => $user->id,
-                'symbol' => 'ETH',
+                'symbol' => AssetSymbol::ETH,
                 'amount' => '10.00000000',
                 'locked_amount' => '0.00000000',
             ]);

@@ -14,11 +14,16 @@ final class ProcessOrderMatching implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public Order $order,
+        public int $orderId,
     ) {}
 
     public function handle(MatchOrder $matchOrder): void
     {
-        $matchOrder->handle($this->order);
+        $order = Order::find($this->orderId);
+
+        if ($order instanceof Order) {
+            $matchOrder->handle($order);
+        }
+
     }
 }

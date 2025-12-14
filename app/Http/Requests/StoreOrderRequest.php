@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\AssetSymbol;
 use App\Enums\OrderSide;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,7 +23,7 @@ final class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'symbol' => ['required', 'string', Rule::in(['BTC', 'ETH'])],
+            'symbol' => ['required', 'string', Rule::enum(AssetSymbol::class)],
             'side' => ['required', 'string', Rule::enum(OrderSide::class)],
             'price' => ['required', 'numeric', 'gt:0', 'decimal:0,8'],
             'amount' => ['required', 'numeric', 'gt:0', 'decimal:0,8'],

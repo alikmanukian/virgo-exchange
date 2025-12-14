@@ -46,7 +46,7 @@ final readonly class PlaceBuyOrder
                 'status' => OrderStatus::Open,
             ]);
 
-            dispatch(new ProcessOrderMatching($order))->afterCommit();
+            dispatch(new ProcessOrderMatching($order->id))->afterCommit();
 
             return $order;
         });

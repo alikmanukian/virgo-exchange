@@ -15,7 +15,6 @@ Route::get('/', fn () => Inertia::render('Welcome', [
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('trading', [TradingController::class, 'index'])->name('trading');
 
-    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
     Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 });

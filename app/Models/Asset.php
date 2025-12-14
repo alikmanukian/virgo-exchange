@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AssetSymbol;
 use Database\Factories\AssetFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,6 +50,7 @@ final class Asset extends Model
     protected function casts(): array
     {
         return [
+            'symbol' => AssetSymbol::class,
             'amount' => 'decimal:8',
             'locked_amount' => 'decimal:8',
         ];

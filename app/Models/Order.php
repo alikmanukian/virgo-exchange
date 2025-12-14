@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AssetSymbol;
 use App\Enums\OrderSide;
 use App\Enums\OrderStatus;
 use Database\Factories\OrderFactory;
@@ -111,6 +112,7 @@ final class Order extends Model
         return [
             'side' => OrderSide::class,
             'status' => OrderStatus::class,
+            'symbol' => AssetSymbol::class,
             'price' => 'decimal:8',
             'amount' => 'decimal:8',
         ];
