@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AlertError from '@/components/AlertError.vue';
-import InputError from '@/components/InputError.vue';
+import AlertError from '@/components/app/AlertError.vue';
+import InputError from '@/components/app/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,

@@ -148,8 +148,8 @@ return [
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
+            'confirm' => false,
+            'confirmPassword' => false,
             // 'window' => 0
         ]),
     ],
