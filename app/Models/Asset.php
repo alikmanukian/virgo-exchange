@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\AssetFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Asset extends Model
+/**
+ * @property numeric-string $amount
+ * @property numeric-string $locked_amount
+ */
+final class Asset extends Model
 {
-    /** @use HasFactory<\Database\Factories\AssetFactory> */
+    /** @use HasFactory<AssetFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -21,6 +26,22 @@ class Asset extends Model
         'amount',
         'locked_amount',
     ];
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return numeric-string
+     */
+    public function availableAmount(): string
+    {
+        return bcsub($this->amount, $this->locked_amount, 8);
+    }
 
     /**
      * @return array<string, string>
@@ -34,24 +55,11 @@ class Asset extends Model
     }
 
     /**
-     * @return BelongsTo<User, $this>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function availableAmount(): string
-    {
-        return bcsub($this->amount, $this->locked_amount, 8);
-    }
-
-    /**
      * @param  Builder<Asset>  $query
      * @return Builder<Asset>
      */
     #[Scope]
-    public function forSymbol(Builder $query, string $symbol): Builder
+    protected function forSymbol(Builder $query, string $symbol): Builder
     {
         return $query->where('symbol', $symbol);
     }

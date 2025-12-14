@@ -20,6 +20,7 @@ final readonly class MatchOrder
 
     public function handle(Order $order): ?Trade
     {
+        /** @var Trade|null $trade */
         $trade = DB::transaction(function () use ($order): ?Trade {
             /** @var Order $order */
             $order = Order::query()->lockForUpdate()->find($order->id);
@@ -30,7 +31,7 @@ final readonly class MatchOrder
 
             $matchingOrder = $this->findMatchingOrder($order);
 
-            if (! $matchingOrder) {
+            if (! $matchingOrder instanceof Order) {
                 return null;
             }
 
@@ -38,8 +39,8 @@ final readonly class MatchOrder
         });
 
         if ($trade) {
-            OrderMatched::dispatch($trade);
-            OrderbookUpdated::dispatch($trade->symbol);
+            event(new OrderMatched($trade));
+            event(new OrderbookUpdated($trade->symbol));
         }
 
         return $trade;
@@ -58,16 +59,14 @@ final readonly class MatchOrder
             return $query
                 ->where('side', OrderSide::Sell)
                 ->where('price', '<=', $order->price)
-                ->orderBy('price', 'asc')
-                ->orderBy('created_at', 'asc')
+                ->orderBy('price', 'asc')->oldest()
                 ->first();
         }
 
         return $query
             ->where('side', OrderSide::Buy)
             ->where('price', '>=', $order->price)
-            ->orderBy('price', 'desc')
-            ->orderBy('created_at', 'asc')
+            ->orderBy('price', 'desc')->oldest()
             ->first();
     }
 
@@ -97,8 +96,8 @@ final readonly class MatchOrder
             ->where('symbol', $buyOrder->symbol)
             ->first();
 
-        $sellerAsset->decrement('locked_amount', $tradeAmount);
-        $sellerAsset->decrement('amount', $tradeAmount);
+        $sellerAsset->decrement('locked_amount', (float) $tradeAmount);
+        $sellerAsset->decrement('amount', (float) $tradeAmount);
 
         /** @var Asset $buyerAsset */
         $buyerAsset = Asset::query()
@@ -107,21 +106,22 @@ final readonly class MatchOrder
                 ['user_id' => $buyer->id, 'symbol' => $buyOrder->symbol],
                 ['amount' => '0.00000000', 'locked_amount' => '0.00000000']
             );
-        $buyerAsset->increment('amount', $tradeAmount);
+        $buyerAsset->increment('amount', (float) $tradeAmount);
 
-        $seller->increment('balance', $totalValue);
+        $seller->increment('balance', (float) $totalValue);
 
         $buyerPaid = bcmul($buyOrder->price, $tradeAmount, 8);
         $buyerOwes = bcadd($totalValue, $commission, 8);
         $refund = bcsub($buyerPaid, $buyerOwes, 8);
 
         if (bccomp($refund, '0', 8) > 0) {
-            $buyer->increment('balance', $refund);
+            $buyer->increment('balance', (float) $refund);
         } elseif (bccomp($refund, '0', 8) < 0) {
-            $buyer->decrement('balance', mb_ltrim($refund, '-'));
+            $buyer->decrement('balance', (float) mb_ltrim($refund, '-'));
         }
 
-        return Trade::create([
+        /** @var Trade */
+        return Trade::query()->create([
             'buy_order_id' => $buyOrder->id,
             'sell_order_id' => $sellOrder->id,
             'buyer_id' => $buyer->id,

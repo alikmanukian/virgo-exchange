@@ -16,10 +16,14 @@ use Illuminate\Support\Facades\DB;
 final readonly class PlaceBuyOrder
 {
     /**
+     * @param  numeric-string  $price
+     * @param  numeric-string  $amount
+     *
      * @throws TradingException
      */
     public function handle(User $user, string $symbol, string $price, string $amount): Order
     {
+        /** @var Order $order */
         $order = DB::transaction(function () use ($user, $symbol, $price, $amount): Order {
             /** @var User $user */
             $user = User::query()->lockForUpdate()->find($user->id);
@@ -30,9 +34,10 @@ final readonly class PlaceBuyOrder
                 throw TradingException::insufficientBalance();
             }
 
-            $user->decrement('balance', $totalCost);
+            $user->decrement('balance', (float) $totalCost);
 
-            $order = Order::create([
+            /** @var Order $order */
+            $order = Order::query()->create([
                 'user_id' => $user->id,
                 'symbol' => mb_strtoupper($symbol),
                 'side' => OrderSide::Buy,
@@ -41,12 +46,12 @@ final readonly class PlaceBuyOrder
                 'status' => OrderStatus::Open,
             ]);
 
-            ProcessOrderMatching::dispatch($order)->afterCommit();
+            dispatch(new ProcessOrderMatching($order))->afterCommit();
 
             return $order;
         });
 
-        OrderbookUpdated::dispatch($order->symbol);
+        event(new OrderbookUpdated($order->symbol));
 
         return $order;
     }

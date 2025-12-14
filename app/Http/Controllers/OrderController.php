@@ -12,7 +12,9 @@ use App\Exceptions\TradingException;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,11 +24,21 @@ final class OrderController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $orders = $request->user()
+        /** @var User $user */
+        $user = $request->user();
+
+        /** @var string|null $symbol */
+        $symbol = $request->query('symbol');
+        /** @var string|null $side */
+        $side = $request->query('side');
+        /** @var string|null $status */
+        $status = $request->query('status');
+
+        $orders = $user
             ->orders()
-            ->when($request->query('symbol'), fn ($query, $symbol) => $query->forSymbol($symbol))
-            ->when($request->query('side'), fn ($query, $side) => $query->where('side', $side))
-            ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
+            ->when($symbol, fn (Builder $query, string $symbol): Builder => $query->forSymbol($symbol))
+            ->when($side, fn (Builder $query, string $side): Builder => $query->where('side', $side))
+            ->when($status, fn (Builder $query, string $status): Builder => $query->where('status', $status))
             ->latest()
             ->paginate(20);
 
@@ -38,11 +50,13 @@ final class OrderController extends Controller
         PlaceBuyOrder $placeBuyOrder,
         PlaceSellOrder $placeSellOrder,
     ): JsonResponse|RedirectResponse {
+        /** @var array{symbol: string, side: string, price: numeric-string, amount: numeric-string} $validated */
         $validated = $request->validated();
+        /** @var User $user */
         $user = $request->user();
         $side = OrderSide::from($validated['side']);
-        $price = (string) $validated['price'];
-        $amount = (string) $validated['amount'];
+        $price = $validated['price'];
+        $amount = $validated['amount'];
 
         try {
             $order = $side === OrderSide::Buy
@@ -57,19 +71,22 @@ final class OrderController extends Controller
             }
 
             return back()->with('success', 'Order placed successfully.');
-        } catch (TradingException $e) {
+        } catch (TradingException $tradingException) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => $e->getMessage()], 422);
+                return response()->json(['message' => $tradingException->getMessage()], 422);
             }
 
-            return back()->withErrors(['order' => $e->getMessage()]);
+            return back()->withErrors(['order' => $tradingException->getMessage()]);
         }
     }
 
     public function destroy(Request $request, Order $order, CancelOrder $cancelOrder): JsonResponse|RedirectResponse
     {
+        /** @var User $user */
+        $user = $request->user();
+
         try {
-            $cancelOrder->handle($order, $request->user());
+            $cancelOrder->handle($order, $user);
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Order cancelled successfully.']);

@@ -5,6 +5,4 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('user.{id}', function (User $user, int $id) {
-    return $user->id === $id;
-});
+Broadcast::channel('user.{id}', fn (User $user, int $id): bool => $user->id === $id);

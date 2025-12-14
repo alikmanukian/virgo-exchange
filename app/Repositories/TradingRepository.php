@@ -7,12 +7,13 @@ namespace App\Repositories;
 use App\Models\Asset;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 final class TradingRepository
 {
     /**
-     * @return Collection<Asset>
+     * @return Collection<int, Asset>
      */
     public function getAssets(User $user): Collection
     {
@@ -20,9 +21,9 @@ final class TradingRepository
     }
 
     /**
-     * @return Collection<Order>
+     * @return Collection<int, Order>
      */
-    public function getOrders(User $user, int $limit = 10): Collection
+    public function getOrders(User $user): Collection
     {
         return $user->orders()->latest()->limit(50)->get();
     }
@@ -52,18 +53,25 @@ final class TradingRepository
         return Order::query()
             ->forSymbol($symbol)
             ->open()
-            ->when($side === 'buy', fn ($q) => $q->buys()->orderByDesc('price'))
-            ->when($side === 'sell', fn ($q) => $q->sells()->orderBy('price'))
+            ->when($side === 'buy', fn (Builder $q): Builder => $q->buys()->orderByDesc('price'))
+            ->when($side === 'sell', fn (Builder $q): Builder => $q->sells()->orderBy('price'))
             ->orderBy('created_at')
             ->limit($limit)
             ->get()
             ->groupBy('price')
-            ->map(fn (Collection $orders): array => [
-                'price' => (string) $orders->first()->price,
-                'amount' => (string) $orders->sum('amount'),
-                'total' => $orders->sum(fn (Order $order): string => bcmul((string) $order->price, (string) $order->amount, 8)),
-                'count' => $orders->count(),
-            ])
+            ->map(function (Collection $orders): array {
+                /** @var Order $first */
+                $first = $orders->first();
+                /** @var numeric-string $amount */
+                $amount = $orders->sum('amount');
+
+                return [
+                    'price' => $first->price,
+                    'amount' => $amount,
+                    'total' => $orders->sum(fn (Order $order): string => bcmul($order->price, $order->amount, 8)),
+                    'count' => $orders->count(),
+                ];
+            })
             ->values();
     }
 }

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-test('registration screen can be rendered', function () {
+test('registration screen can be rendered', function (): void {
     $response = $this->get(route('register'));
 
     $response->assertStatus(200);
 });
 
-test('new users can register', function () {
+test('new users can register', function (): void {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -22,7 +22,7 @@ test('new users can register', function () {
     $response->assertRedirect(route('trading', absolute: false));
 });
 
-test('new users receive default balance and assets', function () {
+test('new users receive default balance and assets', function (): void {
     $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -30,7 +30,7 @@ test('new users receive default balance and assets', function () {
         'password_confirmation' => 'password',
     ]);
 
-    $user = User::where('email', 'test@example.com')->first();
+    $user = User::query()->where('email', 'test@example.com')->first();
 
     expect($user->balance)->toBe('100000.00000000');
     expect($user->assets)->toHaveCount(2);

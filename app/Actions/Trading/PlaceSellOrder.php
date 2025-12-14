@@ -17,10 +17,14 @@ use Illuminate\Support\Facades\DB;
 final readonly class PlaceSellOrder
 {
     /**
+     * @param  numeric-string  $price
+     * @param  numeric-string  $amount
+     *
      * @throws TradingException
      */
     public function handle(User $user, string $symbol, string $price, string $amount): Order
     {
+        /** @var Order $order */
         $order = DB::transaction(function () use ($user, $symbol, $price, $amount): Order {
             $symbol = mb_strtoupper($symbol);
 
@@ -35,9 +39,10 @@ final readonly class PlaceSellOrder
                 throw TradingException::insufficientAssets();
             }
 
-            $asset->increment('locked_amount', $amount);
+            $asset->increment('locked_amount', (float) $amount);
 
-            $order = Order::create([
+            /** @var Order $order */
+            $order = Order::query()->create([
                 'user_id' => $user->id,
                 'symbol' => $symbol,
                 'side' => OrderSide::Sell,
@@ -46,12 +51,12 @@ final readonly class PlaceSellOrder
                 'status' => OrderStatus::Open,
             ]);
 
-            ProcessOrderMatching::dispatch($order)->afterCommit();
+            dispatch(new ProcessOrderMatching($order))->afterCommit();
 
             return $order;
         });
 
-        OrderbookUpdated::dispatch($order->symbol);
+        event(new OrderbookUpdated($order->symbol));
 
         return $order;
     }

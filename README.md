@@ -1,6 +1,10 @@
 # Virgo Exchange
 
-A cryptocurrency trading exchange test application built with Laravel, Inertia.js, and Vue.js.
+A cryptocurrency trading exchange test application built with Laravel 12, Inertia.js v2, Vue 3, and Tailwind CSS v4.
+
+<img src="public/images/screenshot.png" alt="Mini Wallet Screenshot" width="100%" />
+
+**Demo URL**: https://virgo-exchange-main-ehuoor.laravel.cloud/
 
 ## Requirements
 
@@ -120,7 +124,9 @@ The application uses Pusher for real-time orderbook updates. Configure your Push
 PUSHER_APP_ID=your_app_id
 PUSHER_APP_KEY=your_app_key
 PUSHER_APP_SECRET=your_app_secret
-PUSHER_APP_CLUSTER=mt1
+PUSHER_APP_CLUSTER=eu
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 ```
 
 ## License

@@ -6,13 +6,14 @@ namespace Database\Factories;
 
 use App\Enums\OrderSide;
 use App\Enums\OrderStatus;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ * @extends Factory<Order>
  */
-class OrderFactory extends Factory
+final class OrderFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -33,42 +34,42 @@ class OrderFactory extends Factory
 
     public function buy(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'side' => OrderSide::Buy,
         ]);
     }
 
     public function sell(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'side' => OrderSide::Sell,
         ]);
     }
 
     public function open(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => OrderStatus::Open,
         ]);
     }
 
     public function filled(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => OrderStatus::Filled,
         ]);
     }
 
     public function cancelled(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => OrderStatus::Cancelled,
         ]);
     }
 
     public function forSymbol(string $symbol): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'symbol' => $symbol,
         ]);
     }
@@ -85,14 +86,14 @@ class OrderFactory extends Factory
 
     public function withPrice(string $price): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'price' => $price,
         ]);
     }
 
     public function withAmount(string $amount): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'amount' => $amount,
         ]);
     }

@@ -15,7 +15,9 @@ use Illuminate\Queue\SerializesModels;
 
 final class OrderMatched implements ShouldBroadcastNow
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public function __construct(
         public Trade $trade,
@@ -48,8 +50,8 @@ final class OrderMatched implements ShouldBroadcastNow
             'trade' => new TradeResource($this->trade),
             'buy_order' => new OrderResource($this->trade->buyOrder),
             'sell_order' => new OrderResource($this->trade->sellOrder),
-            'buyer_balance' => $this->trade->buyer->balance,
-            'seller_balance' => $this->trade->seller->balance,
+            'buyer_balance' => $this->trade->buyer?->balance,
+            'seller_balance' => $this->trade->seller?->balance,
         ];
     }
 }

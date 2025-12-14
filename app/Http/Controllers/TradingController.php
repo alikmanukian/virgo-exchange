@@ -18,14 +18,13 @@ final class TradingController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        /** @var string $symbol */
-        $symbol = mb_strtoupper($request->query('symbol', 'BTC'));
+        $symbol = mb_strtoupper((string) $request->query('symbol', 'BTC'));
 
         return Inertia::render('Trading', [
             'balance' => fn () => $user->balance,
             'assets' => fn () => AssetResource::collection($repository->getAssets($user)),
             'orders' => fn () => OrderResource::collection($repository->getOrders($user)),
-            'orderbook' => fn () => $repository->getOrderbook($symbol),
+            'orderbook' => fn (): array => $repository->getOrderbook($symbol),
         ]);
     }
 }

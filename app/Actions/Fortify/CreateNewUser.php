@@ -35,21 +35,22 @@ final class CreateNewUser implements CreatesNewUsers
         ])->validate();
 
         return DB::transaction(function () use ($input): User {
-            $user = User::create([
+            /** @var User $user */
+            $user = User::query()->create([
                 'name' => $input['name'],
                 'email' => $input['email'],
                 'password' => $input['password'],
                 'balance' => '100000.00000000',
             ]);
 
-            Asset::create([
+            Asset::query()->create([
                 'user_id' => $user->id,
                 'symbol' => 'BTC',
                 'amount' => '1.00000000',
                 'locked_amount' => '0.00000000',
             ]);
 
-            Asset::create([
+            Asset::query()->create([
                 'user_id' => $user->id,
                 'symbol' => 'ETH',
                 'amount' => '10.00000000',

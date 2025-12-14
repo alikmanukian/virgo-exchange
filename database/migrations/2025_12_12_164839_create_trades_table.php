@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trades', static function (Blueprint $table) {
+        Schema::create('trades', static function (Blueprint $table): void {
             $table->id();
             $table->foreignId('buy_order_id')->constrained('orders');
             $table->foreignId('sell_order_id')->constrained('orders');

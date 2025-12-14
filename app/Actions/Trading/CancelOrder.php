@@ -22,13 +22,12 @@ final readonly class CancelOrder
      */
     public function handle(Order $order, User $user): Order
     {
+        /** @var Order $order */
         $order = DB::transaction(function () use ($order, $user): Order {
             /** @var Order $order */
             $order = Order::query()->lockForUpdate()->find($order->id);
 
-            if ($order->user_id !== $user->id) {
-                throw new AuthorizationException('You are not authorized to cancel this order.');
-            }
+            throw_if($order->user_id !== $user->id, AuthorizationException::class, 'You are not authorized to cancel this order.');
 
             if ($order->status !== OrderStatus::Open) {
                 throw TradingException::orderNotCancellable();
@@ -39,7 +38,7 @@ final readonly class CancelOrder
             if ($order->side === OrderSide::Buy) {
                 /** @var User $user */
                 $user = User::query()->lockForUpdate()->find($user->id);
-                $user->increment('balance', $order->totalValue());
+                $user->increment('balance', (float) $order->totalValue());
             } else {
                 /** @var Asset $asset */
                 $asset = Asset::query()
@@ -47,13 +46,14 @@ final readonly class CancelOrder
                     ->where('user_id', $user->id)
                     ->where('symbol', $order->symbol)
                     ->first();
-                $asset->decrement('locked_amount', $order->amount);
+                $asset->decrement('locked_amount', (float) $order->amount);
             }
 
+            /** @var Order */
             return $order->fresh();
         });
 
-        OrderbookUpdated::dispatch($order->symbol);
+        event(new OrderbookUpdated($order->symbol));
 
         return $order;
     }

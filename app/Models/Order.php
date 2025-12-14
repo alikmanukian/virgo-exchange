@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\OrderSide;
 use App\Enums\OrderStatus;
+use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,9 +14,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property numeric-string $price
+ * @property numeric-string $amount
+ * @property OrderSide $side
+ * @property OrderStatus $status
+ */
 final class Order extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrderFactory> */
+    /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -61,7 +68,7 @@ final class Order extends Model
      * @return Builder<Order>
      */
     #[Scope]
-    public function open(Builder $query): Builder
+    protected function open(Builder $query): Builder
     {
         return $query->where('status', OrderStatus::Open);
     }
@@ -71,7 +78,7 @@ final class Order extends Model
      * @return Builder<Order>
      */
     #[Scope]
-    public function forSymbol(Builder $query, string $symbol): Builder
+    protected function forSymbol(Builder $query, string $symbol): Builder
     {
         return $query->where('symbol', $symbol);
     }
@@ -81,7 +88,7 @@ final class Order extends Model
      * @return Builder<Order>
      */
     #[Scope]
-    public function buys(Builder $query): Builder
+    protected function buys(Builder $query): Builder
     {
         return $query->where('side', OrderSide::Buy);
     }
@@ -91,7 +98,7 @@ final class Order extends Model
      * @return Builder<Order>
      */
     #[Scope]
-    public function sells(Builder $query): Builder
+    protected function sells(Builder $query): Builder
     {
         return $query->where('side', OrderSide::Sell);
     }

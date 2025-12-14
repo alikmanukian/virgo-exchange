@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Asset;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Asset>
+ * @extends Factory<Asset>
  */
-class AssetFactory extends Factory
+final class AssetFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -29,14 +30,14 @@ class AssetFactory extends Factory
 
     public function withAmount(string $amount): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'amount' => $amount,
         ]);
     }
 
     public function forSymbol(string $symbol): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'symbol' => $symbol,
         ]);
     }
