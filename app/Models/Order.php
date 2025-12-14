@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Order extends Model
+final class Order extends Model
 {
     /** @use HasFactory<\Database\Factories\OrderFactory> */
     use HasFactory;
@@ -28,24 +28,27 @@ class Order extends Model
     ];
 
     /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'side' => OrderSide::class,
-            'status' => OrderStatus::class,
-            'price' => 'decimal:8',
-            'amount' => 'decimal:8',
-        ];
-    }
-
-    /**
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return HasOne<Trade, $this>
+     */
+    public function buyTrade(): HasOne
+    {
+        return $this->hasOne(Trade::class, 'buy_order_id');
+    }
+
+    /**
+     * @return HasOne<Trade, $this>
+     */
+    public function sellTrade(): HasOne
+    {
+        return $this->hasOne(Trade::class, 'sell_order_id');
     }
 
     public function totalValue(): string
@@ -91,5 +94,18 @@ class Order extends Model
     public function sells(Builder $query): Builder
     {
         return $query->where('side', OrderSide::Sell);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'side' => OrderSide::class,
+            'status' => OrderStatus::class,
+            'price' => 'decimal:8',
+            'amount' => 'decimal:8',
+        ];
     }
 }

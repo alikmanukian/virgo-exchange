@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Fortify;
 
+use App\Models\Asset;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
-class CreateNewUser implements CreatesNewUsers
+final class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
 
@@ -30,10 +34,29 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => $input['password'],
-        ]);
+        return DB::transaction(function () use ($input): User {
+            $user = User::create([
+                'name' => $input['name'],
+                'email' => $input['email'],
+                'password' => $input['password'],
+                'balance' => '100000.00000000',
+            ]);
+
+            Asset::create([
+                'user_id' => $user->id,
+                'symbol' => 'BTC',
+                'amount' => '1.00000000',
+                'locked_amount' => '0.00000000',
+            ]);
+
+            Asset::create([
+                'user_id' => $user->id,
+                'symbol' => 'ETH',
+                'amount' => '10.00000000',
+                'locked_amount' => '0.00000000',
+            ]);
+
+            return $user;
+        });
     }
 }
