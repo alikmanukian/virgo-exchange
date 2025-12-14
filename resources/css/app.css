@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 
 @import 'tw-animate-css';
+@import 'vue-sonner/style.css';
+@import './toaster.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -168,5 +170,18 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+
+    @layer utilities {
+        /* Hide number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            @apply m-0 appearance-none;
+        }
+
+        input[type='number'] {
+            @apply appearance-none;
+            -moz-appearance: textfield; /* Firefox */
+        }
     }
 }
